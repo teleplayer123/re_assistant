@@ -3,6 +3,8 @@ import os
 import pydantic
 import sqlite3
 
+#TODO encode images to base64 to be analyzed by the model
+
 class DatabaseManager:
     def __init__(self, db_path='re_assist.db'):
         self.conn = sqlite3.connect(db_path, autocommit=True)
