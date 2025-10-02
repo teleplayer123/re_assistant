@@ -6,11 +6,12 @@ import sys
 
 class DatabaseManager:
     def __init__(self, db_path):
-        self.conn = sqlite3.connect(db_path, autocommit=True)
+        self.db_path = db_path
         self.create_tables()
 
     def create_tables(self):
-        with self.conn.cursor() as cursor:
+        with sqlite3.connect(self.db_path) as db:
+            cursor = db.cursor()
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS conversations (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -21,26 +22,25 @@ class DatabaseManager:
             """)
 
     def log_conversation(self, user_input, response):
-        with self.conn.cursor() as cursor:
+        with sqlite3.connect(self.db_path) as db:
+            cursor = db.cursor()
             cursor.execute("""
                 INSERT INTO conversations (user_input, response)
                 VALUES (?, ?)
             """, (user_input, response))
 
     def fetch_conversations(self):
-        with self.conn.cursor() as cursor:
+        with sqlite3.connect(self.db_path) as db:
+            cursor = db.cursor()
             res = cursor.execute("SELECT * FROM conversations")
             return res.fetchall()
-        
-    def close(self):
-        self.conn.close()
 
 class REAssistent:
     def __init__(self, db_filename="re_assist.db"):
         self.messages = [
             {
                 "role": "system",
-                "content": "You are a professional reverse engineer, and you answer all questions in great detail. If you are unsure about a question, ask for clarification. If the user input is not clear, ask for more details.",
+                "content": "You are a professional reverse engineer. You answer all questions in great detail. If you are unsure about a question, ask for clarification. If the user input is not clear, ask for more details.",
             },
         ]
         self.db_manager = DatabaseManager(db_filename)
@@ -113,5 +113,4 @@ class REAssistent:
                 return self.get_response(user_input)
     
     def close(self):
-        self.db_manager.close()
         sys.exit(0)
