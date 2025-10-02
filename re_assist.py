@@ -1,7 +1,7 @@
 import ollama
 import os
-import pydantic
 import sqlite3
+import sys
 
 #TODO encode images to base64 to be analyzed by the model
 
@@ -61,6 +61,22 @@ class REAssistent:
     def fetch_conversations(self):
         return self.db_manager.fetch_conversations()
     
+    def _handle_file_argument(self, argument):
+        if os.path.isfile(argument):
+            if not os.access(argument, os.R_OK):
+                return "Error: File is not readable."
+            if argument.endswith(('.png', '.jpg', '.jpeg', '.bmp', '.gif', '.bin', '.exe', '.dll', '.so')):
+                with open(argument, "rb") as fh:
+                    content = fh.read()
+            elif argument.endswith(('.txt', '.md', '.json', '.xml', '.yaml', '.yml', '.csv', '.log', '.ini', '.cfg', '.py', '.c', '.cpp', '.h', '.java', '.js', '.html', '.css')):
+                with open(argument, "r") as fh:
+                    content = fh.read()
+            else:
+                return "Error: Unsupported file type."
+            return content
+        else:
+            return None
+    
     def process_input(self, user_input):
         if len(user_input.split(":")) == 2:
             # User input format: "instruction: argument"
@@ -69,21 +85,32 @@ class REAssistent:
             argument = argument.strip()
             # Handle arguments that are file paths
             if os.path.isfile(argument):
-                if not os.access(argument, os.R_OK):
-                    return "Error: File is not readable."
-                if argument.endswith(('.png', '.jpg', '.jpeg', '.bmp', '.gif', '.bin', '.exe', '.dll', '.so')):
-                    with open(argument, "rb") as fh:
-                        content = fh.read()
-                elif argument.endswith(('.txt', '.md', '.json', '.xml', '.yaml', '.yml', '.csv', '.log', '.ini', '.cfg', '.py', '.c', '.cpp', '.h', '.java', '.js', '.html', '.css')):
-                    with open(argument, "r") as fh:
-                        content = fh.read()
+                content = self._handle_file_argument(argument)
+                if content is None:
+                    return "Error: File does not exist."
                 else:
-                    return "Error: Unsupported file type."
-                return self.get_response(f"{instruction}:\n{content}")
+                    return self.get_response(f"{instruction}:\n{content}")
             else:
                 return self.get_response(f"{instruction}: {argument}")
         else:
-            return self.get_response(user_input)
+            if user_input.startswith("fetch_conversations"):
+                conversations = self.fetch_conversations()
+                formatted_conversations = "\n".join([f"ID: {conv[0]}, User Input: {conv[1]}, Response: {conv[2]}, Timestamp: {conv[3]}" for conv in conversations])
+                return formatted_conversations if formatted_conversations else "No conversations found."
+            elif user_input.lower() in ["exit", "quit"]:
+                self.close()
+                return "Session ended."
+            elif user_input.lower() == "help":
+                return """Available commands:
+                            - fetch_conversations: Retrieve all past conversations.
+                            - exit or quit: End the session.
+                            - help: Show this help message.
+                            Input can use the format "instruction: argument" where argument can be a file path, or text input without an argument.
+                            Supported file types: .png, .jpg, .jpeg, .bmp, .gif, .bin, .exe, .dll, .so, .txt, .md, .json, .xml, .yaml, .yml, .csv, .log, .ini, .cfg, .py, .c, .cpp, .h, .java, .js, .html, .css
+                        """
+            else:
+                return self.get_response(user_input)
     
     def close(self):
         self.db_manager.close()
+        sys.exit(0)
