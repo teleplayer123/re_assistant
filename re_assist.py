@@ -68,7 +68,7 @@ class REAssistent:
                 with open(argument, "rb") as fh:
                     content = fh.read()
                 content = b64.b64encode(content).decode('utf-8')
-                content = f"data:application/octet-stream;base64,{content}" # necessary?
+                #content = f"data:application/octet-stream;base64,{content}"
             elif argument.endswith(('.txt', '.md', '.json', '.xml', '.yaml', '.yml', '.csv', '.log', '.ini', '.cfg', '.py', '.c', '.cpp', '.h', '.java', '.js', '.html', '.css')):
                 with open(argument, "r") as fh:
                     content = fh.read()
