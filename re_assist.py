@@ -43,10 +43,11 @@ class REAssistent:
                 "content": "You are a professional reverse engineer. You answer all questions in great detail. If you are unsure about a question, ask for clarification. If the user input is not clear, ask for more details.",
             },
         ]
+        self.client = ollama.Client(host='http://localhost:11434')
         self.db_manager = DatabaseManager(db_filename)
 
     def get_response(self, user_input):
-        response = ollama.chat(model="gemma3:1b", messages=[
+        response = self.client.chat(model="gemma3:1b", messages=[
             *self.messages,
             {
                 "role": "user",
