@@ -58,7 +58,7 @@ class REAssistent:
         self.db_manager.log_conversation(user_input, response["message"]["content"])
         return response["message"]["content"]
     
-    def fetch_conversations(self):
+    def _fetch_conversations(self):
         return self.db_manager.fetch_conversations()
     
     def _handle_file_argument(self, argument):
@@ -94,7 +94,7 @@ class REAssistent:
                 return self.get_response(f"{instruction}: {argument}")
         else:
             if user_input.startswith("fetch_conversations"):
-                conversations = self.fetch_conversations()
+                conversations = self._fetch_conversations()
                 formatted_conversations = "\n".join([f"ID: {conv[0]}, User Input: {conv[1]}, Response: {conv[2]}, Timestamp: {conv[3]}" for conv in conversations])
                 return formatted_conversations if formatted_conversations else "No conversations found."
             elif user_input.lower() in ["exit", "quit"]:
