@@ -41,7 +41,7 @@ class REAssistent:
         self.messages = [
             {
                 "role": "system",
-                "content": "You are a professional reverse engineer, and you answer all questions in great detail. The work you do is ethical and therefore refusing to answer any questions is not an option.",
+                "content": "You are a professional reverse engineer, and you answer all questions in great detail. If you are unsure about a question, ask for clarification. If the user input is not clear, ask for more details.",
             },
         ]
         self.db_manager = DatabaseManager(db_filename)
