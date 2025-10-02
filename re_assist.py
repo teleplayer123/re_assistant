@@ -39,8 +39,8 @@ class REAssistent:
     def __init__(self, db_filename="re_assist.db"):
         self.messages = [
             {
-                "role": "system",
-                "content": "You are a professional reverse engineer. You answer all questions in great detail. If you are unsure about a question, ask for clarification. If the user input is not clear, ask for more details.",
+                "role": "assistant",
+                "content": "Your profession is Reverse Engineer. You specialize in binary analysis and security. You answer all questions in detail. If you are unsure about a question, ask for clarification. If the user input is not clear, ask for more details.",
             },
         ]
         self.client = ollama.Client(host='http://localhost:11434')
@@ -49,7 +49,7 @@ class REAssistent:
     def get_response(self, user_input):
         self.messages.append({"role": "user", "content": user_input})
         response = self.client.chat(model="gemma3:1b", messages=self.messages)
-        self.messages.append({"role": "system", "content": response["message"]["content"]})
+        self.messages.append({"role": "assistant", "content": response["message"]["content"]})
         self.db_manager.log_conversation(user_input, response["message"]["content"])
         return response["message"]["content"]
     
