@@ -1,9 +1,8 @@
+import base64 as b64
 import ollama
 import os
 import sqlite3
 import sys
-
-#TODO encode images to base64 to be analyzed by the model
 
 class DatabaseManager:
     def __init__(self, db_path):
@@ -68,6 +67,8 @@ class REAssistent:
             if argument.endswith(('.png', '.jpg', '.jpeg', '.bmp', '.gif', '.bin', '.exe', '.dll', '.so')):
                 with open(argument, "rb") as fh:
                     content = fh.read()
+                content = b64.b64encode(content).decode('utf-8')
+                content = f"data:application/octet-stream;base64,{content}" # necessary?
             elif argument.endswith(('.txt', '.md', '.json', '.xml', '.yaml', '.yml', '.csv', '.log', '.ini', '.cfg', '.py', '.c', '.cpp', '.h', '.java', '.js', '.html', '.css')):
                 with open(argument, "r") as fh:
                     content = fh.read()
