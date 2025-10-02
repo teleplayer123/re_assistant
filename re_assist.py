@@ -47,14 +47,9 @@ class REAssistent:
         self.db_manager = DatabaseManager(db_filename)
 
     def get_response(self, user_input):
-        response = self.client.chat(model="gemma3:1b", messages=[
-            *self.messages,
-            {
-                "role": "user",
-                "content": user_input,
-            }
-        ])
         self.messages.append({"role": "user", "content": user_input})
+        response = self.client.chat(model="gemma3:1b", messages=self.messages)
+        self.messages.append({"role": "system", "content": response["message"]["content"]})
         self.db_manager.log_conversation(user_input, response["message"]["content"])
         return response["message"]["content"]
     
