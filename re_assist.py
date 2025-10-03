@@ -110,3 +110,12 @@ class REAssistent:
     
     def close(self):
         sys.exit(0)
+
+
+if __name__ == "__main__":
+    ra = REAssistent()
+
+    while True:
+        user_input = input("> ")
+        response = ra.process_input(user_input)
+        print(f"\n{response}\n")
